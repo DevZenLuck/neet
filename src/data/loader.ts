@@ -1,17 +1,35 @@
 import type { Question } from '../types';
 
-// Import question paper files here as you add them.
-// Naming convention: {exam}_{year}.json
-// Example: neet_2012.json, aiims_2016.json, jipmer_2019.json
 import neet_2012 from './questions/neet_2012.json';
+import neet_2013 from './questions/neet_2013.json';
+import neet_2014 from './questions/neet_2014.json';
+import neet_2015 from './questions/neet_2015.json';
+import neet_2016 from './questions/neet_2016.json';
+import neet_2017 from './questions/neet_2017.json';
+import neet_2018 from './questions/neet_2018.json';
+import neet_2019 from './questions/neet_2019.json';
+import neet_2020 from './questions/neet_2020.json';
+import neet_2021 from './questions/neet_2021.json';
+import neet_2022 from './questions/neet_2022.json';
+import neet_2023 from './questions/neet_2023.json';
+import neet_2024 from './questions/neet_2024.json';
+import neet_2025 from './questions/neet_2025.json';
 
 const allRawBatches = [
   neet_2012,
-  // Add more imports here as you add question files:
-  // neet_2013,
-  // aiims_2016,
-  // jipmer_2019,
-  // ini-cet_2022,
+  neet_2013,
+  neet_2014,
+  neet_2015,
+  neet_2016,
+  neet_2017,
+  neet_2018,
+  neet_2019,
+  neet_2020,
+  neet_2021,
+  neet_2022,
+  neet_2023,
+  neet_2024,
+  neet_2025,
 ];
 
 const VALID_SOURCE_TYPES = ['official', 'trusted', 'recalled'] as const;
