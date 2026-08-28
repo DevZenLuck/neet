@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import type { Question, Filters, AttemptRecord, BookmarkRecord } from '../types';
 import { getQuestions } from '../data/loader';
 import { filterQuestions, shuffleArray } from '../utils/filters';
@@ -20,48 +20,64 @@ export function useQuestions() {
   });
   const [attempts, setAttempts] = useState<AttemptRecord[]>(() => loadAttempts());
   const [bookmarks, setBookmarks] = useState<BookmarkRecord[]>(() => loadBookmarks());
-  const [sessionHistory, setSessionHistory] = useState<string[]>([]);
   const [currentQueue, setCurrentQueue] = useState<Question[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  const sessionHistoryRef = useRef<string[]>([]);
+  const filteredRef = useRef<Question[]>(allQuestions);
 
   const filteredQuestions = useMemo(
     () => filterQuestions(allQuestions, filters, attempts, bookmarks),
     [allQuestions, filters, attempts, bookmarks]
   );
 
+  useEffect(() => {
+    filteredRef.current = filteredQuestions;
+  }, [filteredQuestions]);
+
   const rebuildQueue = useCallback(() => {
-    const eligible = filteredQuestions.filter((q) => !sessionHistory.includes(q.id));
-    const pool = eligible.length > 0 ? eligible : filteredQuestions;
-    const shuffled = shuffleArray(pool);
+    const pool = filteredRef.current;
+    if (pool.length === 0) {
+      setCurrentQueue([]);
+      setCurrentIndex(0);
+      return;
+    }
+    const eligible = pool.filter((q) => !sessionHistoryRef.current.includes(q.id));
+    const shuffled = shuffleArray(eligible.length > 0 ? eligible : pool);
     setCurrentQueue(shuffled);
     setCurrentIndex(0);
-  }, [filteredQuestions, sessionHistory]);
+  }, []);
 
   useEffect(() => {
     rebuildQueue();
-  }, [rebuildQueue]);
+  }, [filters, rebuildQueue]);
 
   const currentQuestion = currentQueue[currentIndex] || null;
 
   const goToNext = useCallback(() => {
-    const nextIndex = currentIndex + 1;
-    if (nextIndex >= currentQueue.length) {
-      setSessionHistory((prev) => {
-        const newHistory = [...prev, ...currentQueue.map((q) => q.id)];
-        return newHistory.slice(-SESSION_WINDOW);
-      });
-      rebuildQueue();
-    } else {
-      setCurrentIndex(nextIndex);
-      if (currentQueue[nextIndex]) {
-        setSessionHistory((prev) => {
-          const newHistory = [...prev, currentQueue[nextIndex].id];
-          return newHistory.slice(-SESSION_WINDOW);
-        });
+    setCurrentIndex((prevIndex) => {
+      const nextIndex = prevIndex + 1;
+      if (nextIndex >= currentQueue.length) {
+        sessionHistoryRef.current = [
+          ...sessionHistoryRef.current,
+          ...currentQueue.map((q) => q.id),
+        ].slice(-SESSION_WINDOW);
+        const pool = filteredRef.current;
+        const eligible = pool.filter((q) => !sessionHistoryRef.current.includes(q.id));
+        const shuffled = shuffleArray(eligible.length > 0 ? eligible : pool);
+        setCurrentQueue(shuffled);
+        return 0;
       }
-    }
-  }, [currentIndex, currentQueue, rebuildQueue]);
+      if (currentQueue[nextIndex]) {
+        sessionHistoryRef.current = [
+          ...sessionHistoryRef.current,
+          currentQueue[nextIndex].id,
+        ].slice(-SESSION_WINDOW);
+      }
+      return nextIndex;
+    });
+  }, [currentQueue]);
 
   const recordAttempt = useCallback(
     (questionId: string, selectedOption: string, isCorrect: boolean) => {

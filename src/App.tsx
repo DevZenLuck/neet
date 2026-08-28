@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { useQuestions } from './hooks/useQuestions';
 import { useTheme } from './hooks/useTheme';
 import { Header } from './components/Header';
@@ -40,16 +40,6 @@ function App() {
   const handleNext = useCallback(() => {
     goToNext();
   }, [goToNext]);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowDown' || e.key === 'j') {
-        handleNext();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleNext]);
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 transition-colors duration-200">
