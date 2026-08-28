@@ -1,0 +1,17 @@
+{
+  "name": "NEET PG Practice",
+  "short_name": "NEET PG",
+  "description": "NEET PG Previous Year Question Practice",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
