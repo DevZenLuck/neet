@@ -71,25 +71,29 @@ export function QuestionCard({
           />
         </div>
 
-        {question.images && question.images.length > 0 && (
-          <div className="mb-4 space-y-2">
-            {question.images.map((img, i) => (
-              <img
-                key={i}
-                src={img.url}
-                alt={img.caption}
-                className="w-full rounded-xl object-contain max-h-[50vh]"
-                loading="lazy"
-              />
-            ))}
-          </div>
-        )}
-
         <div className="mb-6">
           <p className="text-[16px] leading-relaxed text-slate-900 dark:text-white font-medium">
             {question.question.text}
           </p>
         </div>
+
+        {question.images && question.images.length > 0 && (
+          <div className="mb-4 space-y-2">
+            {question.images.map((img, i) => {
+              const src = typeof img === 'string' ? img : img.url;
+              const alt = typeof img === 'string' ? '' : img.caption;
+              return (
+                <img
+                  key={i}
+                  src={src}
+                  alt={alt}
+                  className="w-full rounded-xl object-contain max-h-[50vh]"
+                  loading="lazy"
+                />
+              );
+            })}
+          </div>
+        )}
 
         <div className="space-y-3 mb-6" role="radiogroup" aria-label="Answer options">
           {question.question.options.map((option) => (

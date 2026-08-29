@@ -3,11 +3,11 @@ export interface QuestionOption {
   text: string;
 }
 
-export interface QuestionImage {
+export type QuestionImage = string | {
   url: string;
   caption: string;
   source: string;
-}
+};
 
 export interface QuestionSource {
   type: 'official' | 'trusted' | 'recalled';
@@ -34,6 +34,7 @@ export interface QuestionExam {
   name: string;
   fullName: string;
   year: number;
+  session?: string;
 }
 
 export interface QuestionAnswer {

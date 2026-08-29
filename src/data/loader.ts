@@ -14,6 +14,16 @@ import neet_2022 from './questions/neet_2022.json';
 import neet_2023 from './questions/neet_2023.json';
 import neet_2024 from './questions/neet_2024.json';
 import neet_2025 from './questions/neet_2025.json';
+import inicet_2020_nov from './questions/inicet_2020_nov.json';
+import inicet_2021_may from './questions/inicet_2021_may.json';
+import inicet_2021_nov from './questions/inicet_2021_nov.json';
+import inicet_2022_may from './questions/inicet_2022_may.json';
+import inicet_2022_nov from './questions/inicet_2022_nov.json';
+import inicet_2023_may from './questions/inicet_2023_may.json';
+import inicet_2023_nov from './questions/inicet_2023_nov.json';
+import inicet_2024_may from './questions/inicet_2024_may.json';
+import inicet_2024_nov from './questions/inicet_2024_nov.json';
+import inicet_2025_may from './questions/inicet_2025_may.json';
 
 const allRawBatches = [
   neet_2012,
@@ -30,6 +40,16 @@ const allRawBatches = [
   neet_2023,
   neet_2024,
   neet_2025,
+  inicet_2020_nov,
+  inicet_2021_may,
+  inicet_2021_nov,
+  inicet_2022_may,
+  inicet_2022_nov,
+  inicet_2023_may,
+  inicet_2023_nov,
+  inicet_2024_may,
+  inicet_2024_nov,
+  inicet_2025_may,
 ];
 
 const VALID_SOURCE_TYPES = ['official', 'trusted', 'recalled'] as const;
