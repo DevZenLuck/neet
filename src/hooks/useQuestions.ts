@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import type { Question, Filters, AttemptRecord, BookmarkRecord } from '../types';
 import { getQuestions } from '../data/loader';
 import { filterQuestions, shuffleArray } from '../utils/filters';
-import { loadAttempts, saveAttempts, addAttempt, loadBookmarks, saveBookmarks, toggleBookmark } from '../utils/storage';
+import { loadAttempts, saveAttempts, addAttempt, removeAttempt, loadBookmarks, saveBookmarks, toggleBookmark } from '../utils/storage';
 
 const SESSION_WINDOW = 20;
 
@@ -23,6 +23,7 @@ export function useQuestions() {
   const [currentQueue, setCurrentQueue] = useState<Question[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [viewFresh, setViewFresh] = useState(false);
 
   const sessionHistoryRef = useRef<string[]>([]);
   const filteredRef = useRef<Question[]>(allQuestions);
@@ -56,6 +57,7 @@ export function useQuestions() {
   const currentQuestion = currentQueue[currentIndex] || null;
 
   const goToNext = useCallback(() => {
+    setViewFresh(false);
     setCurrentIndex((prevIndex) => {
       const nextIndex = prevIndex + 1;
       if (nextIndex >= currentQueue.length) {
@@ -103,6 +105,29 @@ export function useQuestions() {
     [bookmarks]
   );
 
+  const removeIncorrect = useCallback(
+    (questionId: string) => {
+      const updated = removeAttempt(attempts, questionId);
+      setAttempts(updated);
+      saveAttempts(updated);
+    },
+    [attempts]
+  );
+
+  const goToQuestion = useCallback((questionId: string) => {
+    setViewFresh(true);
+    const idx = currentQueue.findIndex((q) => q.id === questionId);
+    if (idx !== -1) {
+      setCurrentIndex(idx);
+      return;
+    }
+    const q = filteredRef.current.find((q) => q.id === questionId);
+    if (q) {
+      setCurrentQueue([q]);
+      setCurrentIndex(0);
+    }
+  }, [currentQueue]);
+
   const clearFilters = useCallback(() => {
     setFilters({
       exam: 'all',
@@ -134,8 +159,11 @@ export function useQuestions() {
     isFilterOpen,
     setIsFilterOpen,
     goToNext,
+    goToQuestion,
+    viewFresh,
     recordAttempt,
     toggleBook,
+    removeIncorrect,
     clearFilters,
     stats,
     totalFiltered: filteredQuestions.length,

@@ -34,6 +34,10 @@ export function addAttempt(attempts: AttemptRecord[], attempt: AttemptRecord): A
   return [...filtered, attempt];
 }
 
+export function removeAttempt(attempts: AttemptRecord[], questionId: string): AttemptRecord[] {
+  return attempts.filter((a) => a.questionId !== questionId);
+}
+
 export function loadBookmarks(): BookmarkRecord[] {
   try {
     const data = localStorage.getItem(BOOKMARKS_KEY);

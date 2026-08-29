@@ -5,7 +5,6 @@ import {
   getUniqueYears,
   getUniqueSubjects,
   getUniqueTopics,
-  getUniqueSubtopics,
 } from '../utils/filters';
 
 interface FilterPanelProps {
@@ -29,11 +28,6 @@ export function FilterPanel({
   const years = getUniqueYears(allQuestions, filters.exam !== 'all' ? filters.exam : undefined);
   const subjects = getUniqueSubjects(allQuestions);
   const topics = getUniqueTopics(allQuestions, filters.subject !== 'all' ? filters.subject : undefined);
-  const subtopics = getUniqueSubtopics(
-    allQuestions,
-    filters.subject !== 'all' ? filters.subject : undefined,
-    filters.topic !== 'all' ? filters.topic : undefined
-  );
 
   if (!isOpen) return null;
 
@@ -81,18 +75,8 @@ export function FilterPanel({
             value={filters.topic}
             options={topics}
             allLabel="All Topics"
-            onChange={(v) => onFiltersChange({ ...filters, topic: v, subtopic: 'all' })}
+            onChange={(v) => onFiltersChange({ ...filters, topic: v })}
           />
-
-          {subtopics.length > 0 && (
-            <FilterSelect
-              label="Subtopic"
-              value={filters.subtopic}
-              options={subtopics}
-              allLabel="All Subtopics"
-              onChange={(v) => onFiltersChange({ ...filters, subtopic: v })}
-            />
-          )}
 
           <FilterSelect
             label="Source"

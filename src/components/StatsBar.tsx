@@ -8,7 +8,6 @@ interface StatsBarProps {
     incorrect: number;
     bookmarked: number;
   };
-  onBookmarkClick?: () => void;
 }
 
 export function StatsBar({ stats }: StatsBarProps) {

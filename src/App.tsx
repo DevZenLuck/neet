@@ -4,6 +4,8 @@ import { useTheme } from './hooks/useTheme';
 import { Header } from './components/Header';
 import { QuestionCard } from './components/QuestionCard';
 import { FilterPanel } from './components/FilterPanel';
+import { BookmarksPanel } from './components/BookmarksPanel';
+import { IncorrectPanel } from './components/IncorrectPanel';
 import { StatsBar } from './components/StatsBar';
 import { LoadingSkeleton, EmptyState } from './components/States';
 import { isBookmarked } from './utils/storage';
@@ -19,14 +21,19 @@ function App() {
     isFilterOpen,
     setIsFilterOpen,
     goToNext,
+    goToQuestion,
+    viewFresh,
     recordAttempt,
     toggleBook,
+    removeIncorrect,
     clearFilters,
     stats,
   } = useQuestions();
 
   const { theme, toggleTheme } = useTheme();
   const [isLoading] = useState(false);
+  const [isBookmarksOpen, setIsBookmarksOpen] = useState(false);
+  const [isIncorrectOpen, setIsIncorrectOpen] = useState(false);
 
   const activeFilters: string[] = [];
   if (filters.exam !== 'all') activeFilters.push(filters.exam);
@@ -41,13 +48,19 @@ function App() {
     goToNext();
   }, [goToNext]);
 
+  const incorrectCount = attempts.filter((a) => !a.isCorrect).length;
+
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 transition-colors duration-200">
       <Header
         onFilterClick={() => setIsFilterOpen(true)}
+        onBookmarksClick={() => setIsBookmarksOpen(true)}
+        onIncorrectClick={() => setIsIncorrectOpen(true)}
         theme={theme}
         onToggleTheme={toggleTheme}
         activeFilters={activeFilters}
+        bookmarkCount={bookmarks.length}
+        incorrectCount={incorrectCount}
       />
 
       <StatsBar stats={stats} />
@@ -58,7 +71,7 @@ function App() {
         <QuestionCard
           key={currentQuestion.id}
           question={currentQuestion}
-          attempt={attempts.find((a) => a.questionId === currentQuestion.id)}
+          attempt={viewFresh ? undefined : attempts.find((a) => a.questionId === currentQuestion.id)}
           isBookmarked={isBookmarked(bookmarks, currentQuestion.id)}
           onRecordAttempt={recordAttempt}
           onToggleBookmark={toggleBook}
@@ -75,6 +88,25 @@ function App() {
         onFiltersChange={setFilters}
         onClear={clearFilters}
         allQuestions={allQuestions}
+      />
+
+      <BookmarksPanel
+        isOpen={isBookmarksOpen}
+        onClose={() => setIsBookmarksOpen(false)}
+        bookmarks={bookmarks}
+        allQuestions={allQuestions}
+        attempts={attempts}
+        onGoToQuestion={goToQuestion}
+        onRemoveBookmark={toggleBook}
+      />
+
+      <IncorrectPanel
+        isOpen={isIncorrectOpen}
+        onClose={() => setIsIncorrectOpen(false)}
+        attempts={attempts}
+        allQuestions={allQuestions}
+        onGoToQuestion={goToQuestion}
+        onRemoveIncorrect={removeIncorrect}
       />
 
       <div className="fixed bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white dark:from-slate-950 to-transparent pointer-events-none z-30" />
