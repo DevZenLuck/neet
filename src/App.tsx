@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useQuestions } from './hooks/useQuestions';
 import { useTheme } from './hooks/useTheme';
 import { Header } from './components/Header';
@@ -6,9 +6,10 @@ import { QuestionCard } from './components/QuestionCard';
 import { FilterPanel } from './components/FilterPanel';
 import { BookmarksPanel } from './components/BookmarksPanel';
 import { IncorrectPanel } from './components/IncorrectPanel';
+import { SubjectNotesPanel } from './components/SubjectNotesPanel';
 import { StatsBar } from './components/StatsBar';
 import { LoadingSkeleton, EmptyState } from './components/States';
-import { isBookmarked, getNote } from './utils/storage';
+import { isBookmarked, getNote, loadSubjectNotes, saveSubjectNotes, upsertSubjectNote } from './utils/storage';
 
 function App() {
   const {
@@ -36,6 +37,22 @@ function App() {
   const [isLoading] = useState(false);
   const [isBookmarksOpen, setIsBookmarksOpen] = useState(false);
   const [isIncorrectOpen, setIsIncorrectOpen] = useState(false);
+  const [isSubjectNotesOpen, setIsSubjectNotesOpen] = useState(false);
+  const [subjectNotes, setSubjectNotes] = useState(() => loadSubjectNotes());
+
+  const uniqueSubjects = useMemo(() => {
+    const subjects = new Set<string>();
+    allQuestions.forEach((q) => {
+      if (q.classification.subject) subjects.add(q.classification.subject);
+    });
+    return Array.from(subjects).sort();
+  }, [allQuestions]);
+
+  const handleSaveSubjectNote = useCallback((subject: string, text: string) => {
+    const updated = upsertSubjectNote(subjectNotes, subject, text);
+    setSubjectNotes(updated);
+    saveSubjectNotes(updated);
+  }, [subjectNotes]);
 
   const activeFilters: string[] = [];
   if (filters.exam !== 'all') activeFilters.push(filters.exam);
@@ -58,11 +75,13 @@ function App() {
         onFilterClick={() => setIsFilterOpen(true)}
         onBookmarksClick={() => setIsBookmarksOpen(true)}
         onIncorrectClick={() => setIsIncorrectOpen(true)}
+        onSubjectNotesClick={() => setIsSubjectNotesOpen(true)}
         theme={theme}
         onToggleTheme={toggleTheme}
         activeFilters={activeFilters}
         bookmarkCount={bookmarks.length}
         incorrectCount={incorrectCount}
+        subjectNoteCount={subjectNotes.length}
       />
 
       <StatsBar stats={stats} />
@@ -111,6 +130,14 @@ function App() {
         allQuestions={allQuestions}
         onGoToQuestion={goToQuestion}
         onRemoveIncorrect={removeIncorrect}
+      />
+
+      <SubjectNotesPanel
+        isOpen={isSubjectNotesOpen}
+        onClose={() => setIsSubjectNotesOpen(false)}
+        subjects={uniqueSubjects}
+        subjectNotes={subjectNotes}
+        onSave={handleSaveSubjectNote}
       />
 
       <div className="fixed bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white dark:from-slate-950 to-transparent pointer-events-none z-30" />

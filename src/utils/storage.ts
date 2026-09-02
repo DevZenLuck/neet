@@ -126,3 +126,52 @@ export function upsertNote(notes: NoteRecord[], questionId: string, text: string
 export function getNote(notes: NoteRecord[], questionId: string): string {
   return notes.find((n) => n.questionId === questionId)?.text || '';
 }
+
+const SUBJECT_NOTES_KEY = 'pgmcq-subject-notes';
+
+export interface SubjectNote {
+  subject: string;
+  text: string;
+  timestamp: number;
+}
+
+export function loadSubjectNotes(): SubjectNote[] {
+  try {
+    const data = localStorage.getItem(SUBJECT_NOTES_KEY);
+    if (!data) return [];
+    const parsed = JSON.parse(data);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.map((n: Record<string, unknown>) => ({
+      subject: String(n.subject || ''),
+      text: String(n.text || ''),
+      timestamp: Number(n.timestamp || 0),
+    })).filter((n: SubjectNote) => n.subject);
+  } catch {
+    return [];
+  }
+}
+
+export function saveSubjectNotes(notes: SubjectNote[]): void {
+  try {
+    localStorage.setItem(SUBJECT_NOTES_KEY, JSON.stringify(notes));
+  } catch {
+    // ignore
+  }
+}
+
+export function upsertSubjectNote(notes: SubjectNote[], subject: string, text: string): SubjectNote[] {
+  const existing = notes.find((n) => n.subject === subject);
+  if (text.trim() === '') {
+    return notes.filter((n) => n.subject !== subject);
+  }
+  if (existing) {
+    return notes.map((n) =>
+      n.subject === subject ? { ...n, text, timestamp: Date.now() } : n
+    );
+  }
+  return [...notes, { subject, text, timestamp: Date.now() }];
+}
+
+export function getSubjectNote(notes: SubjectNote[], subject: string): string {
+  return notes.find((n) => n.subject === subject)?.text || '';
+}
