@@ -80,6 +80,12 @@ export interface BookmarkRecord {
   timestamp: number;
 }
 
+export interface NoteRecord {
+  questionId: string;
+  text: string;
+  timestamp: number;
+}
+
 export interface Filters {
   exam: string | 'all';
   year: number | 'all';

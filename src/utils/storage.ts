@@ -1,7 +1,8 @@
-import type { AttemptRecord, BookmarkRecord } from '../types';
+import type { AttemptRecord, BookmarkRecord, NoteRecord } from '../types';
 
 const ATTEMPTS_KEY = 'pgmcq-attempts';
 const BOOKMARKS_KEY = 'pgmcq-bookmarks';
+const NOTES_KEY = 'pgmcq-notes';
 const THEME_KEY = 'pgmcq-theme';
 
 export function loadAttempts(): AttemptRecord[] {
@@ -83,4 +84,45 @@ export function saveTheme(theme: 'light' | 'dark'): void {
   } catch {
     // ignore
   }
+}
+
+export function loadNotes(): NoteRecord[] {
+  try {
+    const data = localStorage.getItem(NOTES_KEY);
+    if (!data) return [];
+    const parsed = JSON.parse(data);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.map((n: Record<string, unknown>) => ({
+      questionId: String(n.questionId || ''),
+      text: String(n.text || ''),
+      timestamp: Number(n.timestamp || 0),
+    })).filter((n: NoteRecord) => n.questionId);
+  } catch {
+    return [];
+  }
+}
+
+export function saveNotes(notes: NoteRecord[]): void {
+  try {
+    localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
+  } catch {
+    // ignore
+  }
+}
+
+export function upsertNote(notes: NoteRecord[], questionId: string, text: string): NoteRecord[] {
+  const existing = notes.find((n) => n.questionId === questionId);
+  if (text.trim() === '') {
+    return notes.filter((n) => n.questionId !== questionId);
+  }
+  if (existing) {
+    return notes.map((n) =>
+      n.questionId === questionId ? { ...n, text, timestamp: Date.now() } : n
+    );
+  }
+  return [...notes, { questionId, text, timestamp: Date.now() }];
+}
+
+export function getNote(notes: NoteRecord[], questionId: string): string {
+  return notes.find((n) => n.questionId === questionId)?.text || '';
 }

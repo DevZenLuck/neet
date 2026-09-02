@@ -8,7 +8,7 @@ import { BookmarksPanel } from './components/BookmarksPanel';
 import { IncorrectPanel } from './components/IncorrectPanel';
 import { StatsBar } from './components/StatsBar';
 import { LoadingSkeleton, EmptyState } from './components/States';
-import { isBookmarked } from './utils/storage';
+import { isBookmarked, getNote } from './utils/storage';
 
 function App() {
   const {
@@ -18,6 +18,7 @@ function App() {
     setFilters,
     attempts,
     bookmarks,
+    notes,
     isFilterOpen,
     setIsFilterOpen,
     goToNext,
@@ -26,6 +27,7 @@ function App() {
     recordAttempt,
     toggleBook,
     removeIncorrect,
+    saveNote,
     clearFilters,
     stats,
   } = useQuestions();
@@ -73,8 +75,10 @@ function App() {
           question={currentQuestion}
           attempt={viewFresh ? undefined : attempts.find((a) => a.questionId === currentQuestion.id)}
           isBookmarked={isBookmarked(bookmarks, currentQuestion.id)}
+          note={getNote(notes, currentQuestion.id)}
           onRecordAttempt={recordAttempt}
           onToggleBookmark={toggleBook}
+          onSaveNote={saveNote}
           onNext={handleNext}
         />
       ) : (

@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import type { Question, Filters, AttemptRecord, BookmarkRecord } from '../types';
+import type { Question, Filters, AttemptRecord, BookmarkRecord, NoteRecord } from '../types';
 import { getQuestions } from '../data/loader';
 import { filterQuestions, shuffleArray } from '../utils/filters';
-import { loadAttempts, saveAttempts, addAttempt, removeAttempt, loadBookmarks, saveBookmarks, toggleBookmark } from '../utils/storage';
+import { loadAttempts, saveAttempts, addAttempt, removeAttempt, loadBookmarks, saveBookmarks, toggleBookmark, loadNotes, saveNotes, upsertNote } from '../utils/storage';
 
 const SESSION_WINDOW = 20;
 
@@ -20,6 +20,7 @@ export function useQuestions() {
   });
   const [attempts, setAttempts] = useState<AttemptRecord[]>(() => loadAttempts());
   const [bookmarks, setBookmarks] = useState<BookmarkRecord[]>(() => loadBookmarks());
+  const [notes, setNotes] = useState<NoteRecord[]>(() => loadNotes());
   const [currentQueue, setCurrentQueue] = useState<Question[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -114,6 +115,15 @@ export function useQuestions() {
     [attempts]
   );
 
+  const saveNote = useCallback(
+    (questionId: string, text: string) => {
+      const updated = upsertNote(notes, questionId, text);
+      setNotes(updated);
+      saveNotes(updated);
+    },
+    [notes]
+  );
+
   const goToQuestion = useCallback((questionId: string) => {
     setViewFresh(true);
     const idx = currentQueue.findIndex((q) => q.id === questionId);
@@ -156,6 +166,7 @@ export function useQuestions() {
     setFilters,
     attempts,
     bookmarks,
+    notes,
     isFilterOpen,
     setIsFilterOpen,
     goToNext,
@@ -164,6 +175,7 @@ export function useQuestions() {
     recordAttempt,
     toggleBook,
     removeIncorrect,
+    saveNote,
     clearFilters,
     stats,
     totalFiltered: filteredQuestions.length,

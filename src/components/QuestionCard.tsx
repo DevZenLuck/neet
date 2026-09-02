@@ -5,13 +5,16 @@ import { OptionButton } from './OptionButton';
 import { AnswerResult } from './AnswerResult';
 import { ExplanationSection } from './ExplanationSection';
 import { BookmarkButton } from './BookmarkButton';
+import { NoteSection } from './NoteSection';
 
 interface QuestionCardProps {
   question: Question;
   attempt: AttemptRecord | undefined;
   isBookmarked: boolean;
+  note: string;
   onRecordAttempt: (questionId: string, selectedOption: string, isCorrect: boolean) => void;
   onToggleBookmark: (questionId: string) => void;
+  onSaveNote: (questionId: string, text: string) => void;
   onNext: () => void;
 }
 
@@ -19,8 +22,10 @@ export function QuestionCard({
   question,
   attempt,
   isBookmarked,
+  note,
   onRecordAttempt,
   onToggleBookmark,
+  onSaveNote,
   onNext,
 }: QuestionCardProps) {
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(
@@ -135,6 +140,14 @@ export function QuestionCard({
               correctText={correctOption?.text || ''}
               answerStatus={question.answer.status}
             />
+
+            <div className="mt-4">
+              <NoteSection
+                questionId={question.id}
+                note={note}
+                onSave={onSaveNote}
+              />
+            </div>
 
             <ExplanationSection
               explanation={question.answer.explanation}
